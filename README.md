@@ -11,3 +11,12 @@ Harbinger is a terminal companion for termux built for the purpose of acting as 
 - Check internet speed [NEW]
 - Download Youtube video [NEW]
 - Monitor and alert any activity in your downloads folder [NEW]
+
+**Dependencies:**
+- A python interpreter 
+- Python packages (see requirements.txt)
+- FFmpeg [NEW]
+- termux-api (see termux-apis.txt) 
+- Termux:Api (app)
+
+
