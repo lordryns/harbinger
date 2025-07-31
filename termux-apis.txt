@@ -1,0 +1,5 @@
+termux-setup-storage 
+termux-battery-status
+termux-wifi-scaninfo
+termux-vibrate
+termux-notification
