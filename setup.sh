@@ -50,6 +50,10 @@ echo -e "\e[34mTriggering location permission setup...\e[0m"
 termux-wifi-scaninfo >/dev/null 2>&1
 echo -e "\e[32mLocation setup done.\e[0m"
 
+echo "One last thing, we need Ffmpeg..."
+sleep 1
+pkg install ffmpeg
+
 # Finish
 echo
 echo -e "\e[1;35mAll done! Harbinger is ready to use.\e[0m"

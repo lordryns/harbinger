@@ -6,6 +6,8 @@ import threading
 import requests
 from yt_dlp import YoutubeDL
 import questionary
+from art import tprint
+
 
 logger = Logger()
 
@@ -19,6 +21,11 @@ class Device:
 
     def wifi(self) -> dict:
         result = self.shell("termux-wifi-scaninfo")
+        return json.loads(result.stdout)
+
+
+    def device_info(self) -> dict:
+        result = self.shell("termux-telephony-deviceinfo")
         return json.loads(result.stdout)
 
 
@@ -40,16 +47,37 @@ class Device:
     def notification(self, title, content) -> None:
         res = self.shell("termux-notification", "--title", f"'{title}'", "--content", f"'{content}'")
 
+    def terminal_size(self):
+        res = self.shell("stty", "size")
+        return tuple(int(i) for i in res.stdout.split(" "))
+
     def shell(self, *args) -> subprocess.CompletedProcess:
         result = subprocess.run(" ".join(args), shell=True, capture_output=True,text=True)
         return result
 
+
+def restart_program():
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+
 device = Device()
 battery = device.battery()
 
+current_date = time.strftime("%d, %B %Y (%A) ")
+
+subprocess.run("clear")
+tprint("Harbinger")
+
+show_header = True
+
 logger.info("Welcome to Harbinger")
+logger.info(f"Date: {current_date}")
 logger.info(f"Battery percentage: {battery['percentage']}")
 
+print("")
+logger.info("Use [h] for help")
+
+if device.terminal_size() < (33, 59):
+    logger.warning("Terminal size is too small so header may not format properly, zoom out.")
 
 def download_yt_video(link: str):
     options = {
@@ -88,9 +116,9 @@ def download_yt_video_prompt():
 
 def check_network_speed():
     try:
-        t0 = time.time()
+        t0 = time.perf_counter()
         requests.get("https://www.google.com/", timeout=7)
-        t1 = time.time() 
+        t1 = time.perf_counter()
 
         logger.success(f"Responded in: {t1 - t0}s ")
 
@@ -176,22 +204,42 @@ def monitor_battery():
 
 
     
+def display_net_details():
+    res = device.device_info()
+    logger.info(f"Data enabled: {res['data_enabled']}")
+    logger.info(f"Data state: {res['data_state']}")
 
 
+def send_get_request():
+    url = questionary.text("url:").ask()
+    try:
+        t0 = time.perf_counter()
+        query = requests.get(url)
+        t1 = time.perf_counter()
+        logger.info(str(query.status_code))
+        logger.info(f"responded in: {t1 - t0}")
 
+    except Exception as e:
+        logger.error(str(e))
 
 schedule.every(1).seconds.do(monitor_battery)
 schedule.every(1).seconds.do(monitor_wifi)
 schedule.every(1).seconds.do(watch_downloads)
 
 def command_func():
+    global show_header
     HELP = """
 h, help          => Display this message 
 q, exit, quit    => Exit program 
-cls, clear       => Clears shell
-get, fetch <url> => Send get request
-netspeed         => Checks network speed 
+cls, clear       => Clear shell
+get, fetch       => Send get request
+net              => Displays network details
+netspeed         => Check network speed 
 yt               => Download Youtube video
+restart          => Restart application
+
+hhead            => Hide the ascii header 
+shead            => Show the ascii header
     """
     while True:
         command = input().lower()
@@ -204,12 +252,33 @@ yt               => Download Youtube video
 
         elif command in ["clear", "cls"]:
             subprocess.run("clear")
+            if show_header:
+                tprint("Harbinger")
 
         elif command == "netspeed":
             check_network_speed()
 
         elif command == "yt":
             download_yt_video_prompt()
+
+        elif command == "hhead":
+            show_header = False
+            logger.info(str(show_header))
+
+        elif command == "shead":
+            show_header = True
+            logger.info(str(show_header))
+
+        elif command == "restart":
+            logger.info("Restatting application...")
+            restart_program()
+
+        elif command == "net":
+            display_net_details()
+
+
+        elif command in ["get", "fetch"]:
+            send_get_request()
 
 
 

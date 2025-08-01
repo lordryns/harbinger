@@ -3,3 +3,4 @@ termux-battery-status
 termux-wifi-scaninfo
 termux-vibrate
 termux-notification
+termux-telephony-deviceinfo
