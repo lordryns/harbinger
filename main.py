@@ -1,3 +1,4 @@
+from enum import StrEnum
 import time, schedule
 import os, sys, subprocess
 import random, json 
@@ -10,6 +11,11 @@ from art import tprint
 
 
 logger = Logger()
+
+SETTINGS = {
+    "wifi": True, 
+    "header": True
+}
 
 class Device:
     def __init__(self) -> None:
@@ -56,28 +62,35 @@ class Device:
         return result
 
 
-def restart_program():
+def reboot_program():
     os.execv(sys.executable, [sys.executable] + sys.argv)
+
+
+def restart_program():
+    current_date = time.strftime("%d, %B %Y (%A) ")
+    subprocess.run("clear")
+    if SETTINGS['header']:
+        tprint("Harbinger")
+
+
+    logger.info("Welcome to Harbinger")
+    logger.info(f"Date: {current_date}")
+    logger.info(f"Battery percentage: {battery['percentage']}")
+
+    print("")
+    logger.info("Use [h] for help")
+
+    if device.terminal_size() < (33, 59):
+        logger.warning("Terminal size is too small so header may not format properly, zoom out.")
+
+
 
 device = Device()
 battery = device.battery()
 
-current_date = time.strftime("%d, %B %Y (%A) ")
 
-subprocess.run("clear")
-tprint("Harbinger")
+restart_program()
 
-show_header = True
-
-logger.info("Welcome to Harbinger")
-logger.info(f"Date: {current_date}")
-logger.info(f"Battery percentage: {battery['percentage']}")
-
-print("")
-logger.info("Use [h] for help")
-
-if device.terminal_size() < (33, 59):
-    logger.warning("Terminal size is too small so header may not format properly, zoom out.")
 
 def download_yt_video(link: str):
     options = {
@@ -206,8 +219,8 @@ def monitor_battery():
     
 def display_net_details():
     res = device.device_info()
-    logger.info(f"Data enabled: {res['data_enabled']}")
-    logger.info(f"Data state: {res['data_state']}")
+    for r in res:
+        logger._log(f"{r}: {res[r]}", "network", False)
 
 
 def send_get_request():
@@ -222,12 +235,16 @@ def send_get_request():
     except Exception as e:
         logger.error(str(e))
 
+
+def create_ascii_text():
+    text = questionary.text("Enter text:").ask() 
+    tprint(text)
+
 schedule.every(1).seconds.do(monitor_battery)
 schedule.every(1).seconds.do(monitor_wifi)
 schedule.every(1).seconds.do(watch_downloads)
 
 def command_func():
-    global show_header
     HELP = """
 h, help          => Display this message 
 q, exit, quit    => Exit program 
@@ -236,13 +253,16 @@ get, fetch       => Send get request
 net              => Displays network details
 netspeed         => Check network speed 
 yt               => Download Youtube video
-restart          => Restart application
+restart          => Restart application (memory persists)
+reboot           => Reboot application (factory reset)
+ascii            => Writes ascii to stdout
+head             => Hide/Show the ascii header 
+togwifi          => Hide/Show the wifi alerts
 
-hhead            => Hide the ascii header 
-shead            => Show the ascii header
+settings         => Display current working settings
     """
     while True:
-        command = input().lower()
+        command = input().lower().strip()
         if command in ["h", "help"]:
             logger._log("Harbinger v 0.1", "help", show_time=False)
             print(HELP)
@@ -252,7 +272,7 @@ shead            => Show the ascii header
 
         elif command in ["clear", "cls"]:
             subprocess.run("clear")
-            if show_header:
+            if SETTINGS['header']:
                 tprint("Harbinger")
 
         elif command == "netspeed":
@@ -261,16 +281,12 @@ shead            => Show the ascii header
         elif command == "yt":
             download_yt_video_prompt()
 
-        elif command == "hhead":
-            show_header = False
-            logger.info(str(show_header))
-
-        elif command == "shead":
-            show_header = True
-            logger.info(str(show_header))
+        elif command == "head":
+            SETTINGS['header'] = not SETTINGS['header']
+            logger.info(str(SETTINGS['header']))
 
         elif command == "restart":
-            logger.info("Restatting application...")
+            logger.info("Restarting application...")
             restart_program()
 
         elif command == "net":
@@ -279,6 +295,20 @@ shead            => Show the ascii header
 
         elif command in ["get", "fetch"]:
             send_get_request()
+
+        elif command == "ascii":
+            create_ascii_text()
+
+        elif command == "settings":
+            for key in SETTINGS:
+                setting = SETTINGS[key]
+                logger._log(f"{key}: {setting}", "setting", False)
+
+
+        elif command == "reboot":
+            logger.info("Rebooting application...")
+            reboot_program()
+
 
 
 
