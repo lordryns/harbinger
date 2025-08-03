@@ -224,12 +224,22 @@ def display_net_details():
 
 
 def send_get_request():
+    prompts = ["Status code", "Html", "Json"]
     url = questionary.text("url:").ask()
+    res_type = questionary.select("Response:", prompts).ask() 
+
     try:
         t0 = time.perf_counter()
         query = requests.get(url)
         t1 = time.perf_counter()
-        logger.info(str(query.status_code))
+
+        if res_type == prompts[0]:
+            logger.info(str(query.status_code))
+        elif res_type == prompts[1]:
+            print(query.text)
+
+        elif res_type == prompts[2]:
+            print(query.json())
         logger.info(f"responded in: {t1 - t0}")
 
     except Exception as e:

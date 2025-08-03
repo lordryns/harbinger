@@ -4,7 +4,7 @@
 
 Harbinger is a terminal companion for termux built for the purpose of acting as an all in one device manager.
 
-**Current features:**
+## Current features
 - Battery percent display 
 - Monitor charging state, (plugged/disconnected)
 - Monitor and display available wifi networks in the area 
@@ -14,11 +14,18 @@ Harbinger is a terminal companion for termux built for the purpose of acting as 
 - send web requests to a specific site [NEW]
 - Display date [NEW]
 
-**Dependencies:**
+## Dependencies
 - A python interpreter 
 - Python packages (see requirements.txt)
 - FFmpeg [NEW]
 - termux-api (see termux-apis.txt) 
 - Termux:Api (app)
 
+Here is a screenshot:
 
+![Screenshot](/assets/screenshot.jpg)
+
+## Contrubuting
+To contribue, add an issue, send a merge request or just hit me up on [X](https://x.com/lordryns) or [Discord](https://discord.com/users/1015382973052358657) @lordryns.
+
+See you around :)
