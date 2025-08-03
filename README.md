@@ -23,7 +23,7 @@ Harbinger is a terminal companion for termux built for the purpose of acting as 
 
 Here is a screenshot:
 
-![Screenshot](/assets/screenshot.jpg)
+![Screenshot](assets/screenshot.jpg)
 
 ## Contrubuting
 To contribue, add an issue, send a merge request or just hit me up on [X](https://x.com/lordryns) or [Discord](https://discord.com/users/1015382973052358657) @lordryns.
