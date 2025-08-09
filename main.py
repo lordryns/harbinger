@@ -157,8 +157,8 @@ def watch_downloads():
 current_wifi = 0
 def monitor_wifi():
     global current_wifi
-    wifi_list = device.wifi() 
-    if (len(wifi_list) > current_wifi):
+    wifi_list = device.wifi()
+    if wifi_list and (len(wifi_list) > current_wifi):
         current_wifi = len(wifi_list)
         device.notification(
             title="Discovered new network!",
@@ -166,16 +166,15 @@ def monitor_wifi():
         )
         device.vibrate()
         logger.success("Discovered a new wifi network")
-        logger.info(f"ssid: {wifi_list[-1]["ssid"]}")
+        logger.info(f"ssid: {wifi_list[-1]['ssid']}")
         device.append_wifi(wifi_list)
-        
+
         for wifi in wifi_list:
             print("Network found!")
             logger.info(f"Network: {wifi['ssid']}")
             logger.info(f"Connection: {wifi['capabilities']}")
             logger.info(f"Timestamp: {wifi['timestamp']}")
-            print("-"*20, sep="")
-
+            print("-"*20)
 
 
 battery_count = device.battery()["percentage"]
